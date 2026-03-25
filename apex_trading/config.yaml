@@ -1,0 +1,62 @@
+name: "APEX Trading AI"
+description: "AI-powered trading bot with Claude market analysis, live price feeds, portfolio tracking, tax optimization, and self-optimization engine. Supports Alpaca, Binance, Coinbase, Kraken and more."
+version: "1.0.0"
+slug: "apex_trading"
+url: "https://github.com/YOUR_GITHUB_USERNAME/apex-trading-addon"
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+startup: application
+boot: auto
+ports:
+  7123/tcp: 7123
+ports_description:
+  7123/tcp: "APEX Trading Dashboard (Web UI)"
+ingress: true
+ingress_port: 7123
+ingress_stream: false
+panel_icon: mdi:chart-line
+panel_title: "APEX Trading"
+options:
+  anthropic_api_key: ""
+  market_data_source: "yahoo"
+  market_data_key: ""
+  trading_mode: "paper"
+  risk_level: "moderate"
+  tax_bracket: 0.24
+  stop_loss_pct: 2.0
+  take_profit_pct: 6.0
+  max_position_pct: 5.0
+  daily_loss_limit: 500.0
+  auto_analysis_interval: 600
+  broker_platform: ""
+  broker_api_url: ""
+  broker_api_key: ""
+  broker_api_secret: ""
+  log_level: "info"
+schema:
+  anthropic_api_key: str
+  market_data_source: "list(yahoo|finnhub|alphavantage|sim)"
+  market_data_key: str
+  trading_mode: "list(paper|live)"
+  risk_level: "list(conservative|moderate|aggressive)"
+  tax_bracket: float
+  stop_loss_pct: float
+  take_profit_pct: float
+  max_position_pct: float
+  daily_loss_limit: float
+  auto_analysis_interval: int
+  broker_platform: str
+  broker_api_url: str
+  broker_api_key: str
+  broker_api_secret: str
+  log_level: "list(debug|info|warning|error)"
+map:
+  - config:rw
+  - data:rw
+homeassistant_api: false
+hassio_api: false
+auth_api: false

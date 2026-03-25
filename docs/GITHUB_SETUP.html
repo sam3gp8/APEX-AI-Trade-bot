@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX — GitHub Setup Wizard</title>
+<style>
+:root{--bg:#0a0e15;--card:#111720;--card2:#161e2a;--border:rgba(255,255,255,0.08);--a:#00d4aa;--a2:#00a8ff;--purple:#7c5cfc;--warn:#ffb830;--green:#00e676;--red:#ff3d5a;--text:#dde4ee;--dim:#6b7a8d;--muted:#2e3d50;--mono:'Space Mono',monospace;--body:'Inter',sans-serif;}
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&family=Bebas+Neue&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(0,212,170,0.05),transparent);pointer-events:none}
+
+/* Progress header */
+.progress-header{background:rgba(10,14,21,0.98);border-bottom:1px solid var(--border);padding:16px 24px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.progress-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--a);text-shadow:0 0 16px rgba(0,212,170,0.35)}
+.step-counter{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.progress-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));border-radius:2px;transition:width .5s ease}
+.step-tabs{display:flex;gap:4px;margin-top:12px;overflow-x:auto;padding-bottom:2px}
+.step-tab{padding:4px 14px;border-radius:20px;font-family:var(--mono);font-size:9px;letter-spacing:1px;cursor:pointer;white-space:nowrap;border:1px solid transparent;transition:all .18s;color:var(--muted)}
+.step-tab.done{border-color:rgba(0,212,170,0.25);color:var(--a);background:rgba(0,212,170,0.07)}
+.step-tab.active{border-color:var(--a);color:var(--a);background:rgba(0,212,170,0.12)}
+.step-tab:hover:not(.active){color:var(--dim);background:rgba(255,255,255,0.04)}
+
+/* Main */
+.main{max-width:800px;margin:0 auto;padding:40px 24px 120px}
+
+/* Step panels */
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.panel-header{margin-bottom:28px}
+.panel-num{font-family:'Bebas Neue',sans-serif;font-size:52px;color:rgba(0,212,170,0.18);line-height:1}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:2px;color:var(--text);margin-top:-8px}
+.panel-desc{font-size:14px;color:var(--dim);line-height:1.65;margin-top:6px}
+
+/* Input card */
+.input-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:14px}
+.input-card h3{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--a);text-transform:uppercase;margin-bottom:14px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:var(--dim);margin-bottom:6px;font-weight:500}
+.field input,.field select{width:100%;background:#0d1320;border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .18s}
+.field input:focus,.field select:focus{border-color:var(--a)}
+.field input::placeholder{color:var(--muted)}
+.field .hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+.field .hint a{color:var(--a);text-decoration:none}
+.field .hint a:hover{text-decoration:underline}
+
+/* Code blocks */
+.code-wrap{background:#060a10;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:12px 0}
+.code-head{padding:7px 13px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-family:var(--mono);font-size:9px;color:var(--a);letter-spacing:1px;text-transform:uppercase}
+.copy-btn{font-family:var(--mono);font-size:9px;color:var(--dim);cursor:pointer;background:none;border:1px solid var(--border);border-radius:3px;padding:2px 8px;transition:all .15s}
+.copy-btn:hover{color:var(--a);border-color:var(--a)}
+.code-wrap pre{padding:13px 15px;font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--text);overflow-x:auto;white-space:pre}
+.cm{color:var(--dim)}.cs{color:var(--green)}.ck{color:var(--a2)}.cv{color:var(--warn)}.ca{color:var(--a)}
+
+/* Alerts */
+.alert{border-radius:8px;padding:12px 15px;margin:12px 0;font-size:13px;line-height:1.6;display:flex;gap:10px}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.alert-info{background:rgba(0,168,255,0.07);border:1px solid rgba(0,168,255,0.18);color:var(--a2)}
+.alert-success{background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.18);color:var(--green)}
+.alert-warn{background:rgba(255,184,48,0.07);border:1px solid rgba(255,184,48,0.18);color:var(--warn)}
+.alert-tip{background:rgba(124,92,252,0.07);border:1px solid rgba(124,92,252,0.18);color:var(--purple)}
+
+/* Generated output */
+.output-box{background:#060a10;border:1px solid rgba(0,212,170,0.25);border-radius:8px;padding:16px;margin:14px 0;font-family:var(--mono);font-size:12px;line-height:1.8;position:relative}
+.output-box .out-label{font-size:9px;color:var(--a);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:block}
+.output-line{display:block;color:var(--text)}
+.output-line.comment{color:var(--dim)}
+.output-line.cmd{color:var(--a)}
+.output-line.val{color:var(--green)}
+.out-copy{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:9px;color:var(--dim);cursor:pointer;background:var(--card2);border:1px solid var(--border);border-radius:3px;padding:2px 8px;transition:all .15s}
+.out-copy:hover{color:var(--a);border-color:var(--a)}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;margin-top:24px;align-items:center}
+.btn{padding:10px 22px;border-radius:7px;font-family:var(--mono);font-size:11px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn-primary{background:var(--a);color:#000}
+.btn-primary:hover{background:#00efca;box-shadow:0 0 18px rgba(0,212,170,0.3)}
+.btn-secondary{background:var(--card);color:var(--dim);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--a);color:var(--a)}
+.btn-github{background:#24292f;color:#fff;border:1px solid rgba(255,255,255,0.1)}
+.btn-github:hover{background:#2d333b}
+.btn-skip{background:none;border:none;color:var(--muted);font-family:var(--mono);font-size:10px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.btn-skip:hover{color:var(--dim)}
+
+/* Checklist */
+.checklist{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;background:var(--card);border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all .18s}
+.check-item:hover{border-color:rgba(0,212,170,0.2)}
+.check-item.checked{border-color:rgba(0,212,170,0.3);background:rgba(0,212,170,0.04)}
+.check-box{width:18px;height:18px;border-radius:4px;border:1px solid var(--border);background:var(--card2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .18s}
+.check-item.checked .check-box{background:var(--a);border-color:var(--a);color:#000}
+.check-text{font-size:13px;color:var(--dim);line-height:1.5}
+.check-item.checked .check-text{color:var(--text)}
+
+/* Final success */
+.success-banner{background:rgba(0,212,170,0.07);border:1px solid rgba(0,212,170,0.2);border-radius:12px;padding:28px;text-align:center;margin-bottom:20px}
+.success-banner h2{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:3px;color:var(--a);margin-bottom:8px}
+.success-banner p{font-size:14px;color:var(--dim);line-height:1.65}
+
+/* Screen mockups */
+.screen{background:#161e2a;border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;margin:12px 0}
+.screen-bar{background:#0d1320;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sdot{width:9px;height:9px;border-radius:50%}
+.screen-url{flex:1;background:#1a2335;border-radius:4px;padding:3px 10px;font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center}
+.screen-body{padding:14px;font-family:var(--mono);font-size:11px;line-height:1.8;color:var(--dim)}
+.screen-body .highlight{color:var(--a);font-weight:700}
+.screen-body .btn-mock{display:inline-block;padding:3px 10px;background:var(--a);color:#000;border-radius:4px;font-size:10px;font-weight:700;margin-left:8px;cursor:default}
+.screen-body .btn-mock-g{display:inline-block;padding:3px 10px;background:#238636;color:#fff;border-radius:4px;font-size:10px;font-weight:700;margin-left:8px}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS HEADER -->
+<div class="progress-header">
+  <div class="progress-top">
+    <div class="logo">APEX</div>
+    <div class="step-counter"><span id="stepCurrent">1</span> / <span id="stepTotal">7</span> steps</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:14%"></div></div>
+  <div class="step-tabs">
+    <div class="step-tab active" id="stab-0" onclick="goStep(0)">1. GitHub Account</div>
+    <div class="step-tab" id="stab-1" onclick="goStep(1)">2. Create Repo</div>
+    <div class="step-tab" id="stab-2" onclick="goStep(2)">3. Upload Files</div>
+    <div class="step-tab" id="stab-3" onclick="goStep(3)">4. Your Details</div>
+    <div class="step-tab" id="stab-4" onclick="goStep(4)">5. First Push</div>
+    <div class="step-tab" id="stab-5" onclick="goStep(5)">6. Add to HA</div>
+    <div class="step-tab" id="stab-6" onclick="goStep(6)">7. Done!</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STEP 0: GitHub Account -->
+  <div class="panel active" id="panel-0">
+    <div class="panel-header">
+      <div class="panel-num">01</div>
+      <div class="panel-title">GitHub Account</div>
+      <div class="panel-desc">You need a free GitHub account to host the add-on repository. GitHub will serve your code and provide the URL that Home Assistant uses to install APEX.</div>
+    </div>
+
+    <div class="checklist">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text"><strong>I already have a GitHub account</strong> — skip to next step</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">I need to create one — go to <a href="https://github.com/signup" target="_blank" style="color:var(--a)">github.com/signup</a> (free, takes 2 minutes)</div>
+      </div>
+    </div>
+
+    <div class="input-card">
+      <h3>Your GitHub Username</h3>
+      <div class="field">
+        <label>GitHub Username</label>
+        <input type="text" id="githubUser" placeholder="e.g. johnsmith" oninput="updateAll()"/>
+        <div class="hint">This is the part after <code>github.com/</code> in your profile URL. Found at <a href="https://github.com/settings/profile" target="_blank">github.com/settings/profile</a></div>
+      </div>
+      <div class="field">
+        <label>Repository Name</label>
+        <input type="text" id="repoName" value="apex-trading-addon" oninput="updateAll()"/>
+        <div class="hint">The name of your new repository. Keep the default or customize it.</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goStep(1)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 1: Create Repo -->
+  <div class="panel" id="panel-1">
+    <div class="panel-header">
+      <div class="panel-num">02</div>
+      <div class="panel-title">Create Repository</div>
+      <div class="panel-desc">Create a new public repository on GitHub to host APEX.</div>
+    </div>
+
+    <div class="alert alert-info">
+      <div class="alert-icon">ℹ️</div>
+      <div>The repository must be <strong>public</strong> so Home Assistant can read it when adding the repository URL.</div>
+    </div>
+
+    <div class="input-card">
+      <h3>Step-by-Step</h3>
+
+      <p style="font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:16px">Click the button below to open GitHub's new repository page, then follow these settings:</p>
+
+      <div style="text-align:center;margin-bottom:16px">
+        <a class="btn btn-github" id="createRepoLink" href="https://github.com/new" target="_blank">
+          🐙 Open GitHub New Repository →
+        </a>
+      </div>
+
+      <div class="screen">
+        <div class="screen-bar">
+          <div class="sdot" style="background:#ff5f56"></div>
+          <div class="sdot" style="background:#ffbd2e"></div>
+          <div class="sdot" style="background:#27c93f"></div>
+          <div class="screen-url">github.com/new</div>
+        </div>
+        <div class="screen-body">
+          <span>Repository name:</span> <span class="highlight" id="mockRepoName">apex-trading-addon</span><br>
+          <span>Description:</span> <span style="color:var(--text)">AI trading bot for Home Assistant OS</span><br><br>
+          <span>Visibility:</span> <span class="highlight">● Public</span> <span style="color:var(--dim)">(required for HA add-on store)</span><br><br>
+          <span>Initialize:</span> <span class="highlight">✓ Add a README file</span><br>
+          <span>Add .gitignore:</span> <span class="highlight">Python</span><br>
+          <span>License:</span> <span class="highlight">MIT License</span><br><br>
+          <span class="btn-mock-g">Create repository</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="checklist">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">Repository created and I can see it at <code id="repoUrlCheck">github.com/YOUR_USERNAME/apex-trading-addon</code></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(0)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Upload Files -->
+  <div class="panel" id="panel-2">
+    <div class="panel-header">
+      <div class="panel-num">03</div>
+      <div class="panel-title">Upload Files</div>
+      <div class="panel-desc">Upload the APEX add-on files to your GitHub repository. Two methods — choose whichever you prefer.</div>
+    </div>
+
+    <div class="input-card">
+      <h3>Method A — GitHub Web Upload (Easiest)</h3>
+      <p style="font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:14px">Upload files directly through github.com — no Git required.</p>
+
+      <div class="screen">
+        <div class="screen-bar">
+          <div class="sdot" style="background:#ff5f56"></div>
+          <div class="sdot" style="background:#ffbd2e"></div>
+          <div class="sdot" style="background:#27c93f"></div>
+          <div class="screen-url" id="repoUrlMock">github.com/YOUR_USERNAME/apex-trading-addon</div>
+        </div>
+        <div class="screen-body">
+          <span>📁 apex-trading-addon</span><br>
+          <span style="color:var(--muted)">main · 1 branch · 0 tags</span><br><br>
+          <span>Add file</span> <span class="btn-mock">Upload files</span>
+          <span style="color:var(--dim);font-size:10px;margin-left:8px">← Click this</span>
+        </div>
+      </div>
+
+      <ol style="font-size:13px;color:var(--dim);line-height:2;padding-left:18px;margin-top:12px">
+        <li>Go to your repo on GitHub: <a id="repoLink1" href="#" target="_blank" style="color:var(--a)" id="uploadLink">click here to open →</a></li>
+        <li>Click <strong style="color:var(--text)">Add file → Upload files</strong></li>
+        <li>Drag the entire <code>apex-trading-addon/</code> folder into the upload box</li>
+        <li>Scroll down, write commit message: <code>feat: initial APEX add-on release</code></li>
+        <li>Click <strong style="color:var(--text)">Commit changes</strong></li>
+      </ol>
+
+      <div class="alert alert-warn" style="margin-top:12px">
+        <div class="alert-icon">⚠️</div>
+        <div>GitHub's web uploader has a <strong>100 file / 25MB limit</strong>. The APEX zip is well within this. If you have issues, use Method B below.</div>
+      </div>
+    </div>
+
+    <div class="input-card">
+      <h3>Method B — Git Command Line</h3>
+      <p style="font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:12px">For users comfortable with Git. Requires <a href="https://git-scm.com/downloads" target="_blank" style="color:var(--a)">Git installed</a>.</p>
+
+      <div class="code-wrap">
+        <div class="code-head"><span class="code-lang">bash — run on your computer</span><button class="copy-btn" onclick="copyEl(this,'gitCmds')">Copy</button></div>
+        <pre id="gitCmds"><span class="cm"># 1. Clone your new empty repo</span>
+<span class="ca">git clone https://github.com/<span class="clone-user">YOUR_USERNAME</span>/<span class="clone-repo">apex-trading-addon</span>.git</span>
+cd <span class="clone-repo2">apex-trading-addon</span>
+
+<span class="cm"># 2. Extract the APEX zip and copy files here</span>
+<span class="cm">#    (run from the directory where apex-trading-addon.zip is)</span>
+unzip ../apex-trading-addon-v2.zip -d /tmp/apex-src
+cp -r /tmp/apex-src/apex-trading-addon/* .
+
+<span class="cm"># 3. Stage and commit everything</span>
+git add -A
+git commit -m <span class="cs">"feat: initial APEX Trading AI add-on release v1.0.0"</span>
+
+<span class="cm"># 4. Push to GitHub</span>
+git push origin main</pre>
+      </div>
+    </div>
+
+    <div class="checklist">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">Files uploaded — I can see <code>apex_trading/config.yaml</code> in my GitHub repo</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">I can see <code>install.sh</code> and <code>repository.json</code> at the root of my repo</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Update Details -->
+  <div class="panel" id="panel-3">
+    <div class="panel-header">
+      <div class="panel-num">04</div>
+      <div class="panel-title">Update Your Details</div>
+      <div class="panel-desc">A few files reference <code>YOUR_GITHUB_USERNAME</code> — update them with your real details.</div>
+    </div>
+
+    <div class="alert alert-tip">
+      <div class="alert-icon">💡</div>
+      <div>You can edit files directly on GitHub — click the file, then the pencil ✏️ icon. Or use the git command line if you prefer.</div>
+    </div>
+
+    <div class="input-card">
+      <h3>Files to Update</h3>
+      <p style="font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:14px">Replace <code>YOUR_GITHUB_USERNAME</code> in these three files with <strong id="userDisplay" style="color:var(--a)">your username</strong>:</p>
+
+      <div class="output-box" id="filesToUpdate">
+        <span class="out-label">Files needing your username</span>
+        <button class="out-copy" onclick="copyEl(this,'filesToUpdate')">Copy</button>
+        <span class="output-line comment"># 1. apex_trading/config.yaml — line 5:</span>
+        <span class="output-line cmd">url: "https://github.com/YOUR_USERNAME/apex-trading-addon"</span>
+        <span class="output-line">  → change to:</span>
+        <span class="output-line val" id="configUrl">url: "https://github.com/YOUR_USERNAME/apex-trading-addon"</span>
+        <span class="output-line"> </span>
+        <span class="output-line comment"># 2. repository.json:</span>
+        <span class="output-line cmd">"url": "https://github.com/YOUR_USERNAME/apex-trading-addon"</span>
+        <span class="output-line">  → change to:</span>
+        <span class="output-line val" id="repoJsonUrl">"url": "https://github.com/YOUR_USERNAME/apex-trading-addon"</span>
+        <span class="output-line"> </span>
+        <span class="output-line comment"># 3. README.md — replace all occurrences of YOUR_GITHUB_USERNAME</span>
+        <span class="output-line cmd">sed -i 's/YOUR_GITHUB_USERNAME/YOUR_USERNAME/g' README.md</span>
+      </div>
+
+      <div style="margin-top:14px">
+        <p style="font-size:13px;color:var(--dim);margin-bottom:10px">Or use this single command from your cloned repo directory:</p>
+        <div class="code-wrap">
+          <div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyEl(this,'sedCmd')">Copy</button></div>
+          <pre id="sedCmd"><span class="cm"># Replace YOUR_GITHUB_USERNAME with your actual username in all files</span>
+find . -type f \( -name "*.yaml" -o -name "*.json" -o -name "*.md" -o -name "*.sh" \) \
+  -exec sed -i <span class="cs">'s/YOUR_GITHUB_USERNAME/<span id="sedUser">YOUR_USERNAME</span>/g'</span> {} +
+
+git add -A
+git commit -m <span class="cs">"chore: update repository URLs with actual username"</span>
+git push</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(4)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: First Release -->
+  <div class="panel" id="panel-4">
+    <div class="panel-header">
+      <div class="panel-num">05</div>
+      <div class="panel-title">Create First Release</div>
+      <div class="panel-desc">Create a GitHub release with the v1.0.0 tag. This triggers the GitHub Actions workflow to build Docker images for all architectures and publish them to the GitHub Container Registry.</div>
+    </div>
+
+    <div class="alert alert-info">
+      <div class="alert-icon">ℹ️</div>
+      <div><strong>GitHub Actions builds automatically</strong> when you push a tag starting with <code>v</code>. The first build takes ~10-15 minutes (building for 5 CPU architectures). Subsequent builds use cache and are much faster.</div>
+    </div>
+
+    <div class="input-card">
+      <h3>Option A — Create Release via GitHub UI (Recommended)</h3>
+      <ol style="font-size:13px;color:var(--dim);line-height:2.2;padding-left:18px">
+        <li>Go to your repo: <a id="releaseLink" href="#" target="_blank" style="color:var(--a)" id="relLink">click here →</a></li>
+        <li>Click <strong style="color:var(--text)">Releases</strong> (right sidebar) → <strong style="color:var(--text)">Create a new release</strong></li>
+        <li>Click <strong style="color:var(--text)">Choose a tag</strong> → type <code>v1.0.0</code> → <strong style="color:var(--text)">+ Create new tag: v1.0.0</strong></li>
+        <li>Title: <code>APEX Trading AI v1.0.0</code></li>
+        <li>Description: <code>Initial release — AI trading bot for Home Assistant OS</code></li>
+        <li>Click <strong style="color:var(--text)">Publish release</strong></li>
+        <li>Go to the <strong style="color:var(--text)">Actions</strong> tab to watch the build progress</li>
+      </ol>
+    </div>
+
+    <div class="input-card">
+      <h3>Option B — Create Tag via Git</h3>
+      <div class="code-wrap">
+        <div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" onclick="copyEl(this,'tagCmd')">Copy</button></div>
+        <pre id="tagCmd"><span class="cm"># Create and push the v1.0.0 release tag</span>
+git tag -a v1.0.0 -m <span class="cs">"APEX Trading AI v1.0.0 — Initial release"</span>
+git push origin v1.0.0
+
+<span class="cm"># Then create the release on GitHub to attach release notes:</span>
+<span class="ca">https://github.com/<span id="tagUser">YOUR_USERNAME</span>/<span id="tagRepo">apex-trading-addon</span>/releases/new?tag=v1.0.0</span></pre>
+      </div>
+    </div>
+
+    <div class="alert alert-success">
+      <div class="alert-icon">✅</div>
+      <div>After pushing the tag, go to <strong>Actions tab</strong> in your repo. You'll see the "Build and Publish" workflow running. Green checkmarks = success. The Docker images are published to <code>ghcr.io/YOUR_USERNAME/apex-trading-*</code>.</div>
+    </div>
+
+    <div class="checklist">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">Release v1.0.0 created on GitHub</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">GitHub Actions build completed (green ✓ in the Actions tab)</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(5)">Continue →</button>
+      <button class="btn-skip" onclick="goStep(5)">Skip build for now →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Add to HA -->
+  <div class="panel" id="panel-5">
+    <div class="panel-header">
+      <div class="panel-num">06</div>
+      <div class="panel-title">Add to Home Assistant</div>
+      <div class="panel-desc">Add your GitHub repository to Home Assistant so it appears in the Add-on Store.</div>
+    </div>
+
+    <div class="input-card">
+      <h3>Your Repository URL</h3>
+      <div class="output-box">
+        <span class="out-label">Copy this URL into Home Assistant</span>
+        <button class="out-copy" onclick="copyText(document.getElementById('haRepoUrl').textContent)">Copy</button>
+        <span class="output-line val" id="haRepoUrl">https://github.com/YOUR_USERNAME/apex-trading-addon</span>
+      </div>
+    </div>
+
+    <div class="input-card">
+      <h3>Method A — One-Click Add (if HA is on your network)</h3>
+      <div style="text-align:center;margin:14px 0">
+        <a class="btn btn-primary" id="haAddBtn" href="#" target="_blank">
+          🏠 Add Repository to Home Assistant
+        </a>
+      </div>
+      <p style="font-size:12px;color:var(--muted);text-align:center">Uses the my.home-assistant.io redirect — opens HA and pre-fills the repository URL</p>
+    </div>
+
+    <div class="input-card">
+      <h3>Method B — Manual in HA UI</h3>
+      <div class="screen">
+        <div class="screen-bar">
+          <div class="sdot" style="background:#ff5f56"></div><div class="sdot" style="background:#ffbd2e"></div><div class="sdot" style="background:#27c93f"></div>
+          <div class="screen-url">homeassistant.local:8123/hassio/store</div>
+        </div>
+        <div class="screen-body">
+          Settings → Add-ons → Add-on Store<br>
+          Click <span class="highlight">⋮</span> (top right corner) → <span class="highlight">Repositories</span><br><br>
+          <span style="color:var(--text)">Add repository URL:</span><br>
+          <span class="highlight" id="haUrlInScreen">https://github.com/YOUR_USERNAME/apex-trading-addon</span>
+          <span class="btn-mock">Add</span><br><br>
+          <span style="color:var(--dim)">Then: scroll down to find <span class="highlight">APEX Trading AI</span> → Install</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-card">
+      <h3>Method C — Self-Installer Script (no GitHub needed)</h3>
+      <p style="font-size:13px;color:var(--dim);line-height:1.65;margin-bottom:12px">If you want to install without adding a repository (local add-on), use the installer script via SSH or HA Terminal:</p>
+      <div class="code-wrap">
+        <div class="code-head"><span class="code-lang">bash — HA Terminal or SSH</span><button class="copy-btn" onclick="copyEl(this,'installCmd')">Copy</button></div>
+        <pre id="installCmd"><span class="ca">curl -fsSL https://raw.githubusercontent.com/<span id="installUser">YOUR_USERNAME</span>/<span id="installRepo">apex-trading-addon</span>/main/install.sh | bash</span></pre>
+      </div>
+    </div>
+
+    <div class="checklist">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">Repository added to Home Assistant</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">APEX Trading AI appears in Add-on Store → Installed it</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">Add-on is running and I can open the dashboard</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goStep(4)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(6)">I'm Done! →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: Done -->
+  <div class="panel" id="panel-6">
+    <div class="success-banner">
+      <h2>🎉 APEX IS LIVE!</h2>
+      <p>Your APEX Trading AI add-on is published on GitHub and running in Home Assistant. Here's everything you need to know going forward.</p>
+    </div>
+
+    <div class="input-card">
+      <h3>Your Repository Links</h3>
+      <div class="output-box">
+        <span class="out-label">Bookmark these</span>
+        <span class="output-line comment"># GitHub repository</span>
+        <span class="output-line val" id="finalRepoUrl">https://github.com/YOUR_USERNAME/apex-trading-addon</span>
+        <span class="output-line"> </span>
+        <span class="output-line comment"># Add to Home Assistant</span>
+        <span class="output-line val" id="finalHaUrl">https://github.com/YOUR_USERNAME/apex-trading-addon</span>
+        <span class="output-line"> </span>
+        <span class="output-line comment"># Self-installer (share this with others)</span>
+        <span class="output-line val" id="finalInstallUrl">curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/apex-trading-addon/main/install.sh | bash</span>
+        <span class="output-line"> </span>
+        <span class="output-line comment"># Docker images (built by GitHub Actions)</span>
+        <span class="output-line val" id="finalDockerUrl">ghcr.io/YOUR_USERNAME/apex-trading-amd64:latest</span>
+      </div>
+    </div>
+
+    <div class="input-card">
+      <h3>How to Release Updates</h3>
+      <div class="code-wrap">
+        <div class="code-head"><span class="code-lang">bash — releasing a new version</span><button class="copy-btn" onclick="copyEl(this,'updateCmd')">Copy</button></div>
+        <pre id="updateCmd"><span class="cm"># 1. Make your changes (edit server.py, index.html, etc.)</span>
+<span class="cm"># 2. Bump version in apex_trading/config.yaml</span>
+<span class="cm"># 3. Commit, tag, push:</span>
+git add -A
+git commit -m <span class="cs">"feat: add new feature / fix bug"</span>
+git tag -a v1.0.1 -m <span class="cs">"APEX v1.0.1"</span>
+git push &amp;&amp; git push origin v1.0.1
+
+<span class="cm"># GitHub Actions will automatically:</span>
+<span class="cm">#  - Build new Docker images for all 5 architectures</span>
+<span class="cm">#  - Create a GitHub release with the zip attached</span>
+<span class="cm">#  - HA users will see the update in the Add-on Store</span></pre>
+      </div>
+    </div>
+
+    <div class="input-card">
+      <h3>First-Time APEX Setup</h3>
+      <div class="checklist">
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div class="check-text">Open APEX dashboard (HA sidebar or <code id="dashUrl">http://ha-ip:7123</code>)</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div class="check-text">Enter Anthropic API key in the sidebar <strong>Claude AI</strong> panel</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div class="check-text">Enter your brokerage balance in the <strong>Capital</strong> panel → Set Starting Capital</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div class="check-text">Click <strong>📡 Fetch Live Prices Now</strong> in the Market Data panel</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div class="check-text">Click <strong>🔍 Full Market Scan</strong> in the Claude Analysis tab</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div class="check-text">Toggle the BOT switch ON — APEX is live!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentStep = 0;
+const totalSteps = 7;
+
+function goStep(n) {
+  document.getElementById('panel-' + currentStep).classList.remove('active');
+  document.getElementById('stab-' + currentStep).classList.remove('active');
+  if (currentStep < n) document.getElementById('stab-' + currentStep).classList.add('done');
+  currentStep = n;
+  document.getElementById('panel-' + n).classList.add('active');
+  document.getElementById('stab-' + n).classList.add('active');
+  document.getElementById('stepCurrent').textContent = n + 1;
+  document.getElementById('progressFill').style.width = ((n + 1) / totalSteps * 100) + '%';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  updateAll();
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  if (el.classList.contains('checked')) el.querySelector('.check-box').textContent = '✓';
+  else el.querySelector('.check-box').textContent = '';
+}
+
+function getUser() { return document.getElementById('githubUser')?.value?.trim() || 'YOUR_USERNAME'; }
+function getRepo() { return document.getElementById('repoName')?.value?.trim() || 'apex-trading-addon'; }
+
+function updateAll() {
+  const u = getUser(), r = getRepo();
+  const repoUrl = `https://github.com/${u}/${r}`;
+
+  // Step 1
+  const ml = document.getElementById('mockRepoName'); if (ml) ml.textContent = r;
+  const ruc = document.getElementById('repoUrlCheck'); if (ruc) ruc.textContent = `github.com/${u}/${r}`;
+
+  // Step 2
+  const rum = document.getElementById('repoUrlMock'); if (rum) rum.textContent = `github.com/${u}/${r}`;
+  const rl1 = document.getElementById('repoLink1'); if (rl1) { rl1.href = repoUrl; rl1.textContent = `${repoUrl} →`; }
+  const gc = document.getElementById('gitCmds');
+  if (gc) gc.innerHTML = gc.innerHTML
+    .replace(/clone-user[^<]*/g, '')
+    .replace(/YOUR_USERNAME/g, u)
+    .replace(/apex-trading-addon(?!\.zip)/g, r);
+
+  // Step 3
+  const ud = document.getElementById('userDisplay'); if (ud) ud.textContent = u || 'your username';
+  const cu = document.getElementById('configUrl'); if (cu) cu.textContent = `url: "https://github.com/${u}/${r}"`;
+  const rju = document.getElementById('repoJsonUrl'); if (rju) rju.textContent = `"url": "https://github.com/${u}/${r}"`;
+  const su = document.getElementById('sedUser'); if (su) su.textContent = u;
+  const sc = document.getElementById('sedCmd'); if (sc) sc.innerHTML = sc.innerHTML.replace(/YOUR_USERNAME/g, u).replace(/apex-trading-addon/g, r);
+
+  // Step 4
+  const rl = document.getElementById('releaseLink'); if (rl) { rl.href = repoUrl; rl.textContent = `${repoUrl} →`; }
+  const tu = document.getElementById('tagUser'); if (tu) tu.textContent = u;
+  const tr = document.getElementById('tagRepo'); if (tr) tr.textContent = r;
+
+  // Step 5
+  const hau = document.getElementById('haRepoUrl'); if (hau) hau.textContent = repoUrl;
+  const hais = document.getElementById('haUrlInScreen'); if (hais) hais.textContent = repoUrl;
+  const hab = document.getElementById('haAddBtn');
+  if (hab) hab.href = `https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=${encodeURIComponent(repoUrl)}`;
+  const iu = document.getElementById('installUser'); if (iu) iu.textContent = u;
+  const ir = document.getElementById('installRepo'); if (ir) ir.textContent = r;
+
+  // Step 6
+  const fr = document.getElementById('finalRepoUrl'); if (fr) fr.textContent = repoUrl;
+  const fh = document.getElementById('finalHaUrl'); if (fh) fh.textContent = repoUrl;
+  const fi = document.getElementById('finalInstallUrl'); if (fi) fi.textContent = `curl -fsSL https://raw.githubusercontent.com/${u}/${r}/main/install.sh | bash`;
+  const fd = document.getElementById('finalDockerUrl'); if (fd) fd.textContent = `ghcr.io/${u}/apex-trading-amd64:latest`;
+  const uc = document.getElementById('updateCmd');
+  if (uc) { uc.innerHTML = uc.innerHTML.replace(/YOUR_USERNAME/g, u).replace(/apex-trading-addon/g, r); }
+}
+
+function copyEl(btn, id) {
+  const el = document.getElementById(id);
+  const text = el.innerText || el.textContent;
+  copyText(text, btn);
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (btn) { const orig = btn.textContent; btn.textContent = 'Copied!'; btn.style.color = 'var(--green)'; setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 2000); }
+  }).catch(() => { if (btn) btn.textContent = 'Failed'; });
+}
+
+// Init
+updateAll();
+</script>
+</body>
+</html>
