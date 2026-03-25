@@ -33,7 +33,7 @@ Claude AI market analysis · Real prices server-side · Broker API (no CORS) · 
 
 ### One-Click (via HA Add-on Repository)
 
-[![Add Repository to HA](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FYOUR_GITHUB_USERNAME%2Fapex-trading-addon)
+[![Add Repository to HA](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fsam3gp8%2Fapex-trading-addon)
 
 Or manually:
 1. In HA: **Settings → Add-ons → Store → ⋮ → Repositories**
