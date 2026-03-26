@@ -2,15 +2,15 @@
 
 <div align="center">
 
-[![Build Status](https://github.com/YOUR_GITHUB_USERNAME/apex-trading-addon/actions/workflows/build.yml/badge.svg)](https://github.com/YOUR_GITHUB_USERNAME/apex-trading-addon/actions)
-[![Release](https://img.shields.io/github/v/release/YOUR_GITHUB_USERNAME/apex-trading-addon?style=flat)](https://github.com/YOUR_GITHUB_USERNAME/apex-trading-addon/releases)
-[![License](https://img.shields.io/github/license/YOUR_GITHUB_USERNAME/apex-trading-addon)](LICENSE)
+[![Build Status](https://github.com/sam3gp8/apex-trading-addon/actions/workflows/build.yml/badge.svg)](https://github.com/sam3gp8/apex-trading-addon/actions)
+[![Release](https://img.shields.io/github/v/release/sam3gp8/apex-trading-addon?style=flat)](https://github.com/sam3gp8/apex-trading-addon/releases)
+[![License](https://img.shields.io/github/license/sam3gp8/apex-trading-addon)](LICENSE)
 [![HA Addon](https://img.shields.io/badge/Home%20Assistant-Add--on-41BDF5?logo=home-assistant)](https://www.home-assistant.io/addons/)
 
 **AI-powered trading bot running permanently inside Home Assistant OS.**  
 Claude AI market analysis · Real prices server-side · Broker API (no CORS) · Persistent storage
 
-[Installation](#-installation) · [Configuration](#-configuration) · [Brokers](#-supported-brokers) · [Docs](docs/INSTALL_GUIDE.html) · [Issues](https://github.com/YOUR_GITHUB_USERNAME/apex-trading-addon/issues)
+[Installation](#-installation) · [Configuration](#-configuration) · [Brokers](#-supported-brokers) · [Docs](docs/INSTALL_GUIDE.html) · [Issues](https://github.com/sam3gp8/apex-trading-addon/issues)
 
 </div>
 
