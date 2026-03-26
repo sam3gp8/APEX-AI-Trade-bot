@@ -37,19 +37,19 @@ Claude AI market analysis · Real prices server-side · Broker API (no CORS) · 
 
 Or manually:
 1. In HA: **Settings → Add-ons → Store → ⋮ → Repositories**
-2. Add: `https://github.com/YOUR_GITHUB_USERNAME/apex-trading-addon`
+2. Add: `https://github.com/sam3gp8/apex-trading-addon`
 3. Find **APEX Trading AI** → Install
 
 ### Self-Installer Script (SSH / Terminal Add-on)
 
 ```bash
 # From the HA Terminal add-on or SSH session:
-curl -fsSL https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/apex-trading-addon/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/sam3gp8/apex-trading-addon/main/install.sh | bash
 ```
 
 ### Manual (Samba / File Share)
 
-1. Download the [latest release zip](https://github.com/YOUR_GITHUB_USERNAME/apex-trading-addon/releases/latest)
+1. Download the [latest release zip](https://github.com/sam3gp8/apex-trading-addon/releases/latest)
 2. Map HA as a network drive via the **Samba share** add-on
 3. Copy `apex_trading/` into the `addons` share
 4. In HA: Settings → Add-ons → Store → ⋮ → Check for updates → Install APEX Trading AI
